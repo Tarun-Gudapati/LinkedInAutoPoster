@@ -1,0 +1,6 @@
+@LinkedInAutoPoster_HostAddress = http://localhost:5030
+
+GET {{LinkedInAutoPoster_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
