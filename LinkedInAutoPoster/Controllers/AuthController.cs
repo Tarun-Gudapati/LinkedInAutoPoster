@@ -29,14 +29,6 @@ namespace LinkedInAutoPoster.Controllers
             var redirectUri = _config["LinkedIn:RedirectUri"];
             var state = Guid.NewGuid().ToString("N");
 
-            //var url =
-            //"https://www.linkedin.com/oauth/v2/authorization" +
-            //$"?response_type=code" +
-            //$"&client_id={clientId}" +
-            //$"&redirect_uri={redirectUri}" +
-            //$"&scope=r_liteprofile%20w_member_social" +
-            //$"&state={state}";
-
             var url = "https://www.linkedin.com/oauth/v2/authorization" +
               $"?response_type=code" +
               $"&client_id={clientId}" +
@@ -65,7 +57,7 @@ namespace LinkedInAutoPoster.Controllers
             // 2️⃣ EXACT PAYLOAD
             var payload = new Dictionary<string, object>
             {
-                ["author"] = author,
+                ["author"] = author,//json format
                 ["lifecycleState"] = "PUBLISHED",
                 ["specificContent"] = new Dictionary<string, object>
                 {
