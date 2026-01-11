@@ -40,7 +40,7 @@ namespace LinkedInAutoPoster.Controllers
         [HttpPost("post")]
         public async Task<IActionResult> PostToLinkedIn(string message)
         {
-            var accessToken = "AQWzuf2HVVfaZEbDRX9v4vkV8P8MyinPa63jeLhuYlh_IcJxFxh_fjBT87yhOcw2b1JTNWIUFr2EynddPjledl_b7-q_8w10QJr9clUAaV6rFprkCoIcx5cWvZNt6MrpVb8IIqwcvhzcuHb1sEYlR5HtEOIl2mW8mLxeZiQ5nBGatgesHeKGsryyr17yKz8rnn3nahKGAWkLilYwzTOW2LH8kA1idznEci0Q__bhCGt4i5fTHekPe7ycXBf1wy6hD_1xxEi62dpod4ANklQ6Tl4T899J5QbebF7o-svOJmTvgll7QevdNfNBt-t2IDI8gz-uf1n94SfbP7bfaqMl6iMc7WPf8Q";
+            var accessToken = "aV6rFprkCoIcx5cWvZNt6MrpVb8IIqwcvhzcuHb1sEYlR5HtEOIl2mW8mLxeZiQ5nBGatgesHeKGsryyr17yKz8rnn3nahKGAWkLilYwzTOW2LH8kA1idznEci0Q__bhCGt4i5fTHekPe7ycXBf1wy6hD_1xxEi62dpod4ANklQ6Tl4T899J5QbebF7oz-uf1n94SfbP7bfaqMl6iMc7WPf8Q";
 
             using var http = new HttpClient();
             http.DefaultRequestHeaders.Authorization =
@@ -115,3 +115,4 @@ namespace LinkedInAutoPoster.Controllers
         }
     }
 }
+
