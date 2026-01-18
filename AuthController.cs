@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
 using static System.Net.WebRequestMethods;
+using LinkedInAutoPoster.Services;
 
 
 namespace LinkedInAutoPoster.Controllers
@@ -38,54 +39,14 @@ namespace LinkedInAutoPoster.Controllers
             return Redirect(url);
         }
         [HttpPost("post")]
-        public async Task<IActionResult> PostToLinkedIn(string message)
+        public async Task<IActionResult> PostManually(string message,
+        [FromServices] LinkedInPostService linkedin)
         {
-            var accessToken = "aV6rFprkCoIcx5cWvZNt6MrpVb8IIqwcvhzcuHb1sEYlR5HtEOIl2mW8mLxeZiQ5nBGatgesHeKGsryyr17yKz8rnn3nahKGAWkLilYwzTOW2LH8kA1idznEci0Q__bhCGt4i5fTHekPe7ycXBf1wy6hD_1xxEi62dpod4ANklQ6Tl4T899J5QbebF7oz-uf1n94SfbP7bfaqMl6iMc7WPf8Q";
-
-            using var http = new HttpClient();
-            http.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", accessToken);
-            http.DefaultRequestHeaders.Add("X-Restli-Protocol-Version", "2.0.0");
-
-            // 1️⃣ GET USER INFO (OPENID)
-            var meResponse = await http.GetAsync("https://api.linkedin.com/v2/userinfo");
-            var meJson = await meResponse.Content.ReadAsStringAsync();
-            dynamic me = Newtonsoft.Json.JsonConvert.DeserializeObject(meJson);
-            string sub = me.sub;   // IMPORTANT: sub NOT id
-            string author = $"urn:li:person:{sub}";
-
-            // 2️⃣ EXACT PAYLOAD
-            var payload = new Dictionary<string, object>
-            {
-                ["author"] = author,//json format
-                ["lifecycleState"] = "PUBLISHED",
-                ["specificContent"] = new Dictionary<string, object>
-                {
-                    ["com.linkedin.ugc.ShareContent"] = new Dictionary<string, object>
-                    {
-                        ["shareCommentary"] = new Dictionary<string, string>
-                        {
-                            ["text"] = message
-                        },
-                        ["shareMediaCategory"] = "NONE"
-                    }
-                },
-                ["visibility"] = new Dictionary<string, string>
-                {
-                    ["com.linkedin.ugc.MemberNetworkVisibility"] = "PUBLIC"
-                }
-            };
-
-            var json = Newtonsoft.Json.JsonConvert.SerializeObject(payload);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            // 3️⃣ POST TO LINKEDIN
-            var response = await http.PostAsync("https://api.linkedin.com/v2/ugcPosts", content);
-
-            var result = await response.Content.ReadAsStringAsync();
-            return Ok(new { status = response.StatusCode.ToString(), response = result, sentJson = json });
+            var result = await linkedin.Publish(message);
+            return Ok(result);
         }
 
+      
 
 
 
@@ -114,5 +75,31 @@ namespace LinkedInAutoPoster.Controllers
             return Ok(responseString);
         }
     }
-}
+    [ApiController]
+    [Route("autopost")]
+    public class AutoPostController : ControllerBase
+    {
+        private readonly OpenAiService _openAi;
+        private readonly LinkedInPostService _linkedin;
 
+        public AutoPostController(OpenAiService openAi, LinkedInPostService linkedin)
+        {
+            _openAi = openAi;
+            _linkedin = linkedin;
+        }
+
+        [HttpPost("post-ai")]
+        public async Task<IActionResult> PostUsingAI(string topic)
+        {
+            // 1️⃣ generate
+            string text = await _openAi.GeneratePost(topic);
+
+            // 2️⃣ publish
+            var result = await _linkedin.Publish(text);
+
+            return Ok(new { text, result });
+        }
+    }
+
+
+}
